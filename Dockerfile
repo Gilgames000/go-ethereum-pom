@@ -23,7 +23,10 @@ RUN apk add --no-cache ca-certificates
 COPY --from=builder /go-ethereum/build/bin/geth /usr/local/bin/
 
 EXPOSE 8545 8546 30303 30303/udp
-ENTRYPOINT ["geth"]
+COPY pom.json /genesis.json
+RUN geth --datadir /root/.ethereum init /genesis.json
+COPY static-nodes.json /root/.ethereum/static-nodes.json
+ENTRYPOINT ["geth", "--datadir", "/root/.ethereum", "--networkid", "18159", "--syncmode", "full", "--http.addr", "0.0.0.0", "--http", "--http.api", "eth,net,web3,txpool", "--http.corsdomain", "*", "--http.vhosts", "*"]
 
 # Add some metadata labels to help programatic image consumption
 ARG COMMIT=""
